@@ -118,11 +118,15 @@ pub func openAiErrorJson(message: in String, errorType: in String, code: in Stri
   return "{\"error\":{\"message\":\"" + CloudAgents.Streaming.jsonEscape(message) + "\",\"type\":\"" + CloudAgents.Streaming.jsonEscape(errorType) + "\",\"code\":\"" + CloudAgents.Streaming.jsonEscape(code) + "\"}}"
 }
 
+func containsStr(haystack: in String, needle: in String): Bool {
+  return CloudAgents.Text.indexOfFrom(haystack, needle, 0) >= 0
+}
+
 pub func isStreamingRequested(body: in String): Bool {
-  return CloudAgents.Text.contains(body, "\"stream\": true") or
-    CloudAgents.Text.contains(body, "\"stream\":true") or
-    CloudAgents.Text.contains(body, "\"stream\": 1") or
-    CloudAgents.Text.contains(body, "\"stream\":1")
+  return containsStr(body, "\"stream\": true") or
+    containsStr(body, "\"stream\":true") or
+    containsStr(body, "\"stream\": 1") or
+    containsStr(body, "\"stream\":1")
 }
 
 pub record AnthropicAuth {
@@ -469,5 +473,6 @@ pub func listModelsJson(): String {
 }
 
 pub func listModelsHandler(): Web.Response {
-  return Web.jsonResponse(listModelsJson())
+  val resp = Web.text(200, listModelsJson())
+  return Web.withResponseHeader(resp, "Content-Type", "application/json")
 }
