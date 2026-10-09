@@ -253,7 +253,7 @@ test "SaveProfileRequest.fromJson decodes a body that omits toolMode/tools entir
 
   // A body that already sends both fields must decode byte-identically to
   // patching nothing (no double-injected keys, no corrupted trailing JSON).
-  val alreadyPresent = "{\"name\":\"x\",\"harness\":\"\",\"networkPolicy\":\"none\",\"credentialMode\":\"all\",\"credentials\":[],\"skillIds\":[],\"subagentIds\":[],\"mcpServerIds\":[],\"toolMode\":\"selected\",\"tools\":[\"remember\"]}"
+  val alreadyPresent = "{\"name\":\"x\",\"harness\":\"\",\"networkPolicy\":\"none\",\"credentialMode\":\"all\",\"credentials\":[],\"credentialMappings\":[],\"skillIds\":[],\"subagentIds\":[],\"mcpServerIds\":[],\"toolMode\":\"selected\",\"tools\":[\"remember\"]}"
   assertEqual(
     patchMissingToolFields(alreadyPresent),
     alreadyPresent,

@@ -178,17 +178,20 @@ test "LLM Gateway resolveProfileRef resolves from URL or header, and rejects emp
   // 2. Resolve by profile ID in URL
   val resById = resolveProfileRef(p.id, "", uid)
   assertTrue(resById.isOk, "resolve by ID in URL")
-  assertEqual(p.name, resById.unwrapResult().name, "resolved profile name matches")
+  val profById: CloudAgents.Repository.Profile = resById.unwrapResult()
+  assertEqual(p.name, profById.name, "resolved profile name matches")
 
   // 3. Resolve by profile Name in URL
   val resByName = resolveProfileRef("coder", "", uid)
   assertTrue(resByName.isOk, "resolve by Name in URL")
-  assertEqual(p.id, resByName.unwrapResult().id, "resolved profile id matches")
+  val profByName: CloudAgents.Repository.Profile = resByName.unwrapResult()
+  assertEqual(p.id, profByName.id, "resolved profile id matches")
 
   // 4. Resolve by profile Name in Header when URL is empty
   val resByHeader = resolveProfileRef("", "coder", uid)
   assertTrue(resByHeader.isOk, "resolve by Name in Header")
-  assertEqual(p.id, resByHeader.unwrapResult().id, "resolved profile id matches")
+  val profByHeader: CloudAgents.Repository.Profile = resByHeader.unwrapResult()
+  assertEqual(p.id, profByHeader.id, "resolved profile id matches")
 
   // 5. Fail-fast when neither URL nor Header specifies profile
   val resEmpty = resolveProfileRef("", "", uid)
@@ -309,21 +312,22 @@ test "LLM Gateway credential resolution enforces explicit mappings and fails fas
   // Test 1: pClaude resolves to Bearer OAuth token
   val auth1 = resolveAnthropicAuth(pClaude, uid)
   assertTrue(auth1.isOk, "pClaude resolves Anthropic auth")
-  val a1 = auth1.unwrapResult()
+  val a1: AnthropicAuth = auth1.unwrapResult()
   assertTrue(a1.isBearer, "isBearer is true for OAuth token")
   assertEqual("test-oauth-token", a1.token, "token matches OAuth access token")
 
   // Test 2: pAntKey resolves to API Key (isBearer = false)
   val auth2 = resolveAnthropicAuth(pAntKey, uid)
   assertTrue(auth2.isOk, "pAntKey resolves Anthropic auth")
-  val a2 = auth2.unwrapResult()
+  val a2: AnthropicAuth = auth2.unwrapResult()
   assertFalse(a2.isBearer, "isBearer is false for ANTHROPIC_API_KEY")
   assertEqual("sk-ant-test-key-67890", a2.token, "token matches ANTHROPIC_API_KEY")
 
   // Test 3: pOpenAi resolves to OpenAI key
   val auth3 = resolveOpenAiAuth(pOpenAi, uid)
   assertTrue(auth3.isOk, "pOpenAi resolves OpenAI key")
-  assertEqual("sk-test-openai-key-12345", auth3.unwrapResult(), "token matches OPENAI_API_KEY")
+  val token3: String = auth3.unwrapResult()
+  assertEqual("sk-test-openai-key-12345", token3, "token matches OPENAI_API_KEY")
 
   // Test 4: pEmpty fails fast on Anthropic without guessing or falling back
   val authEmptyAnt = resolveAnthropicAuth(pEmpty, uid)
